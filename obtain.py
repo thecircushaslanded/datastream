@@ -10,7 +10,6 @@ import warnings
 import datetime as dt
 from netrc import netrc
 
-import numpy as np
 import pandas as pd
 
 from pydatastream import Datastream
