@@ -63,7 +63,7 @@ class Obtain(Datastream):
         """Use get_constituents() for now."""
         pass
 
-    def fetch(self, codes, fields=None, freq='D',
+    def fetch(self, codes, fields=None, static_fields=None, freq='D',
             start_date=None, n_years=None, n_days=None):
         """
         Fetches data from Datastream.
@@ -89,6 +89,9 @@ class Obtain(Datastream):
             field (usually price).  The default field will be chosen according
             to the first code.
             The full list of data fields is available at http://dtg.tfn.com/.
+
+        static_fields: str or list
+            Datastream codes for static variables.  This feature is fragile.
 
         feq: 'D', 'W', 'M', or 'REP'
             Frequency of the data.  Datastream has three frequencies 
@@ -119,10 +122,30 @@ class Obtain(Datastream):
                 fields=fields, 
                 start_date=start_date, n_years=n_years, n_days=n_days, 
                 freq=freq)
-
         raw = list(self.request(query))
         raw.append(codes)
-        return RawData(raw)
+        rawdata = RawData(raw)
+
+        if static_fields is not None:
+            static_query = self._construct_request(codes, 
+                    fields=static_fields, 
+                    freq="REP")
+            static_raw = list(self.request(static_query))
+            static_raw.append(codes)
+            # static_data = RawData(static_raw).data[0][1]
+            static_data = RawData(static_raw).data
+            # We only need the data from the static_fields
+            try:
+                static_data = [item[1] for item in static_data]
+                for item in static_data: del item["DATE"]
+
+                # now we merge this into rawdata.
+                for idx in range(len(static_data)):
+                    rawdata.data[idx][0].update(static_data[idx])
+            except:
+                pass
+
+        return rawdata
 
 
     @staticmethod
@@ -283,7 +306,7 @@ class RawData(object):
                 if date is not None:
                     array_data['DATE'] = date
 
-                self.data.append((non_array, array_data))
+                self.data.append([non_array, array_data])
 
     def __repr__(self):
         return "Obtain RawData for {}.".format(self.Instrument)
