@@ -1,4 +1,5 @@
 from clean import clean
 from obtain import Obtain
-from utils import fetch
+from utils import fetch, robust_fetch
+
 

@@ -6,6 +6,7 @@ Author: Robert Buss robert.a.buss@frb.gob
 See LICENSE.txt
 """
 import re
+import sys
 import warnings
 import datetime as dt
 from netrc import netrc
@@ -55,9 +56,6 @@ class Obtain(Datastream):
             return [self.fetch(code_seg, start_date=start_date, **kwargs) for
                         code_seg in codes_split()]
 
-    def parse_csv(self, path):
-        print('We\'ve already got one!')
-        pass
 
     def constituents(self, code, date):
         """Use get_constituents() for now."""
@@ -135,15 +133,20 @@ class Obtain(Datastream):
             # static_data = RawData(static_raw).data[0][1]
             static_data = RawData(static_raw).data
             # We only need the data from the static_fields
-            try:
-                static_data = [item[1] for item in static_data]
-                for item in static_data: del item["DATE"]
+            if static_data != None:
+                try:
+                    # I think that this first line is the only 
+                    # line that might have problems.
+                    static_data = [item[1] for item in static_data]
+                    for item in static_data: del item["DATE"]
 
-                # now we merge this into rawdata.
-                for idx in range(len(static_data)):
-                    rawdata.data[idx][0].update(static_data[idx])
-            except:
-                pass
+                    # now we merge this into rawdata.
+                    for idx in range(len(static_data)):
+                        rawdata.data[idx][0].update(static_data[idx])
+                except:
+                    print "ERROR", sys.exc_info()[0]
+                    warnings.warn("Error in processing static codes.")
+                    raw_input()
 
         return rawdata
 
@@ -229,7 +232,6 @@ class Obtain(Datastream):
             request += '~' + freq
 
         return request
-
 
 class RawData(object):
     def __init__(self, raw):

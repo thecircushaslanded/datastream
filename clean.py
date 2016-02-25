@@ -1,4 +1,5 @@
 """
+clean.py
 Author: Robert Buss
 """
 
@@ -28,10 +29,14 @@ def clean(raw):
         return df
 
     if isinstance(raw, list):
+        """frames = [pd.concat([one_code_to_df(code_data) for code_data in 
+                    raw_piece.data]) for raw_piece in raw]"""
         frames = [pd.concat([one_code_to_df(code_data) for code_data in 
-                    raw_piece.data]) for raw_piece in raw]
+                    raw_piece.data]) for raw_piece in raw 
+                    if raw_piece.data != None]
     else:
-        frames = [one_code_to_df(code_data) for code_data in raw.data]
+        frames = [one_code_to_df(code_data) for code_data in raw.data 
+                if raw.data != None]
         
     return pd.concat(frames)
 
