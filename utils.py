@@ -6,7 +6,7 @@ from numpy import NaN
 
 from clean import clean
 
-DatastreamDir = "/lcl/if/home/m1rab03/python_modules/datastream/"
+DatastreamDir = "~/python_modules/datastream/"
 
 def chunks(codes, n):
     """
@@ -97,7 +97,7 @@ def fetch(codes, n, **kwargs):
         return DataFrame(), broken
     # return clean([item for sublist in chunk_lists for item in sublist]), broken
 
-def robust_fetch(codes, out_dir="/lcl/data/scratch/m1rab03/datastream/", 
+def robust_fetch(codes, out_dir="~/data/datastream/", 
         fields=["P"], **kwargs):
     """
     This is a shortcut to downloading Datastream data.  It
